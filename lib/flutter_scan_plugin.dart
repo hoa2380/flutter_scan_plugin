@@ -36,7 +36,7 @@ class FlutterScanPlugin {
       throw Exception("Permission not granted");
     }
 
-    return CuervoDocumentScanner.getPictures(Source.CAMERA);
+    return CuervoDocumentScanner.getPictures(Source.GALLERY);
   }
 }
 
