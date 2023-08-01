@@ -1,4 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cuervo_document_scanner/cuervo_document_scanner.dart';
+import 'package:flutter/material.dart';
+import 'package:opencv_3/factory/pathfrom.dart';
+import 'package:opencv_3/opencv_3.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'flutter_scan_plugin_platform_interface.dart';
@@ -25,7 +32,17 @@ class FlutterScanPlugin {
     if (statuses.containsValue(PermissionStatus.denied)) {
       throw Exception("Permission not granted");
     }
-    return CuervoDocumentScanner.getPictures(Source.CAMERA);
+    List<String>? path = await CuervoDocumentScanner.getPictures(Source.CAMERA);
+    if(path == null) return null;
+    Uint8List? _byte = await Cv2.cvtColor(
+      pathFrom: CVPathFrom.GALLERY_CAMERA,
+      pathString: path[0],
+      outputType: Cv2.COLOR_BGR2GRAY,
+    );
+    final tempDir = await getTemporaryDirectory();
+    File file = await File('${tempDir.path}/image.png').create();
+    file.writeAsBytesSync(_byte!);
+    return path;
   }
 
   static Future<List<String>?> _getPicturesFromGallery() async {
