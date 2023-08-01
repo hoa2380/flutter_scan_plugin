@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          FlutterScanPlugin.start(Type.CAMERA, context);
+          FlutterScanPlugin.start(Type.GALLERY, context);
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
