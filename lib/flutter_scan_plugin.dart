@@ -42,7 +42,9 @@ class FlutterScanPlugin {
     final tempDir = await getTemporaryDirectory();
     File file = await File('${tempDir.path}/image.png').create();
     file.writeAsBytesSync(_byte!);
-    return path;
+    List<String>?  _path = [];
+    _path.add(file.path);
+    return _path;
   }
 
   static Future<List<String>?> _getPicturesFromGallery() async {
@@ -53,7 +55,19 @@ class FlutterScanPlugin {
       throw Exception("Permission not granted");
     }
 
-    return CuervoDocumentScanner.getPictures(Source.GALLERY);
+    List<String>? path = await CuervoDocumentScanner.getPictures(Source.GALLERY);
+    if(path == null) return null;
+    Uint8List? _byte = await Cv2.cvtColor(
+      pathFrom: CVPathFrom.GALLERY_CAMERA,
+      pathString: path[0],
+      outputType: Cv2.COLOR_BGR2GRAY,
+    );
+    final tempDir = await getTemporaryDirectory();
+    File file = await File('${tempDir.path}/image.png').create();
+    file.writeAsBytesSync(_byte!);
+    List<String>?  _path = [];
+    _path.add(file.path);
+    return _path;
   }
 }
 
