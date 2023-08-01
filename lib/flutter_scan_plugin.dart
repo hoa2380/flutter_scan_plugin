@@ -19,15 +19,13 @@ class FlutterScanPlugin {
 
   static Future<List<String>?> start(Type type, BuildContext context) async {
     if (type == Type.CAMERA) {
-      _showDialogResult(context);
-      return _getPicturesFromCamera();
+      return _getPicturesFromCamera(context);
     } else {
-      _showDialogResult(context);
-      return _getPicturesFromGallery();
+      return _getPicturesFromGallery(context);
     }
   }
 
-  static Future<List<String>?> _getPicturesFromCamera() async {
+  static Future<List<String>?> _getPicturesFromCamera(BuildContext context) async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.camera,
     ].request();
@@ -46,10 +44,11 @@ class FlutterScanPlugin {
     file.writeAsBytesSync(_byte!);
     List<String>?  _path = [];
     _path.add(file.path);
+    _showDialogResult(context, file.path);
     return _path;
   }
 
-  static Future<List<String>?> _getPicturesFromGallery() async {
+  static Future<List<String>?> _getPicturesFromGallery(BuildContext context) async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.photos,
     ].request();
@@ -69,22 +68,20 @@ class FlutterScanPlugin {
     file.writeAsBytesSync(_byte!);
     List<String>?  _path = [];
     _path.add(file.path);
+    _showDialogResult(context, file.path);
     return _path;
   }
 
-  static Future<void> _showDialogResult(BuildContext context) async {
+  static Future<void> _showDialogResult(BuildContext context, String path) async {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Result'),
         content: Text('Result'),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('OK'),
-          ),
+          Container(
+            child: Image.file(File(path)),
+          )
         ],
       ),
     );
