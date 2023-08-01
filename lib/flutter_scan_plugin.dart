@@ -73,17 +73,24 @@ class FlutterScanPlugin {
   }
 
   static Future<void> _showDialogResult(BuildContext context, String path) async {
-    await showDialog(
+    await showGeneralDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Result'),
-        content: Text('Result'),
-        actions: [
-          Container(
-            child: Image.file(File(path)),
-          )
-        ],
-      ),
+      barrierColor: Colors.black12.withOpacity(0.6), // Background color
+      barrierDismissible: false,
+      barrierLabel: 'Dialog',
+      transitionDuration: Duration(milliseconds: 400),
+      pageBuilder: (_, __, ___) {
+        return Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: Image.file(File(path)),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
