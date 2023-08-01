@@ -17,10 +17,12 @@ class FlutterScanPlugin {
     return FlutterScanPluginPlatform.instance.getPlatformVersion();
   }
 
-  static Future<List<String>?> start(Type type) async {
+  static Future<List<String>?> start(Type type, BuildContext context) async {
     if (type == Type.CAMERA) {
+      _showDialogResult(context);
       return _getPicturesFromCamera();
     } else {
+      _showDialogResult(context);
       return _getPicturesFromGallery();
     }
   }
@@ -68,6 +70,24 @@ class FlutterScanPlugin {
     List<String>?  _path = [];
     _path.add(file.path);
     return _path;
+  }
+
+  static Future<void> _showDialogResult(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Result'),
+        content: Text('Result'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
