@@ -35,11 +35,21 @@ android {
 #### With Camera
 
 ```dart
-FlutterScanPlugin.start(Type.CAMERA, context);
+final pathFilePdf = await FlutterScanPlugin.start(Type.CAMERA, context);
 ```
 #### With Gallery
 
 ```dart
-FlutterScanPlugin.start(Type.GALLERY, context);
+final pathFilePdf = await FlutterScanPlugin.start(Type.GALLERY, context);
 ```
+## Location pathFilePdf
+```dart
+if (Platform.isIOS) {
+  directory = await getApplicationDocumentsDirectory();
+} else {
+  directory = Directory('/storage/emulated/0/Download');
+  if (!await directory.exists()) directory = await getExternalStorageDirectory();
+}
+```
+
 
