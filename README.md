@@ -10,6 +10,14 @@ A Flutter plugin scan text from image.
  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 ```
+Change minSdkVersion in android/app/build.gradle
+```android
+android {                                                                                     
+   defaultConfig {                                                                             
+     minSdkVersion 21                                                                         
+   }                                                                                           
+ }   
+```
 #### Setup ios
 
 ```podfile
