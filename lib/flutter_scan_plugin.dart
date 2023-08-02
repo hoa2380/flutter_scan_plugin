@@ -22,15 +22,14 @@ enum Type { CAMERA, GALLERY }
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 
 class FlutterScanPlugin {
-
   static final _textRecognizer = TextRecognizer();
 
   static ScreenshotController screenshotController = ScreenshotController();
 
   static Random _rnd = Random();
 
-  static String _getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+  static String _getRandomString(int length) =>
+      String.fromCharCodes(Iterable.generate(length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   static Future<List<String>?> start(Type type, BuildContext context) async {
     if (type == Type.CAMERA) {
@@ -48,7 +47,7 @@ class FlutterScanPlugin {
       throw Exception("Permission not granted");
     }
     List<String>? path = await CuervoDocumentScanner.getPictures(Source.CAMERA);
-    if(path == null) return null;
+    if (path == null) return null;
     Uint8List? _byte = await Cv2.cvtColor(
       pathFrom: CVPathFrom.GALLERY_CAMERA,
       pathString: path[0],
@@ -57,8 +56,8 @@ class FlutterScanPlugin {
     final tempDir = await getTemporaryDirectory();
     File file = await File('${tempDir.path}/image.png').create();
     file.writeAsBytesSync(_byte!);
-    List<String>?  _path = [];
-    _path = await _showResult(context, file.path, false);
+    List<String>? _path = [];
+    _path = await _showResult(context, file.path, true);
     return _path;
   }
 
@@ -71,7 +70,7 @@ class FlutterScanPlugin {
     }
 
     List<String>? path = await CuervoDocumentScanner.getPictures(Source.GALLERY);
-    if(path == null) return null;
+    if (path == null) return null;
     Uint8List? _byte = await Cv2.cvtColor(
       pathFrom: CVPathFrom.GALLERY_CAMERA,
       pathString: path[0],
@@ -80,7 +79,7 @@ class FlutterScanPlugin {
     final tempDir = await getTemporaryDirectory();
     File file = await File('${tempDir.path}/image.png').create();
     file.writeAsBytesSync(_byte!);
-    List<String>?  _path = [];
+    List<String>? _path = [];
     _path = await _showResult(context, file.path, true);
     return _path;
   }
@@ -91,7 +90,6 @@ class FlutterScanPlugin {
     final recognizedText = await _textRecognizer.processImage(inputImage);
     final file2 = File(inputImage.filePath!);
     var decodedImage2 = await decodeImageFromList(file2.readAsBytesSync());
-    List<String>?  _pathPdf = [];
     var widgetScreen = Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: CustomPaint(
@@ -108,26 +106,24 @@ class FlutterScanPlugin {
             width: MediaQuery.of(context).size.width,
           )),
     );
-    screenshotController
+    Uint8List capturedImage = await screenshotController
         .captureFromWidget(InheritedTheme.captureAll(context, Material(child: widgetScreen)),
-        delay: Duration(seconds: 1))
-        .then((capturedImage) async {
-          _pathPdf = await _screenToPdf(capturedImage);
-      if(_pathPdf != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Save to download folder success'),
-          ),
-        );
-      }
-    });
-    return _pathPdf;
+            delay: Duration(seconds: 1));
+    List<String>? _path = await _screenToPdf(capturedImage);
+    if(path.isNotEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Save to download folder success'),
+        ),
+      );
+    }
+    return _path;
   }
 
   static Future<List<String>?> _screenToPdf(Uint8List screenShot) async {
     await Permission.storage.request();
-    List<String>?  _path = [];
-    if(await Permission.storage.isDenied) return null;
+    List<String>? _path = [];
+    if (await Permission.storage.isDenied) return null;
     try {
       Directory? directory;
       pw.Document pdf = pw.Document();
@@ -150,20 +146,9 @@ class FlutterScanPlugin {
       File pdfFile = await File('${directory?.path}/${'file${_getRandomString(5)}'}.pdf').create();
       pdfFile.writeAsBytesSync(await pdf.save());
       _path.add(pdfFile.path);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: Text('Save to download folder success'),
-      //   ),
-      // );
     } catch (e) {
       print(e);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: Text('Save failed'),
-      //   ),
-      // );
     }
     return _path;
   }
 }
-

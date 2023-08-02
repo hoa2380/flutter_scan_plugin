@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_scan_plugin/flutter_scan_plugin.dart';
 
@@ -76,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          FlutterScanPlugin.start(Type.GALLERY, context);
+          FlutterScanPlugin.start(Type.CAMERA, context);
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
