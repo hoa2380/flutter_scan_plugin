@@ -71,7 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             ElevatedButton(onPressed: () {
-              FlutterScanPlugin.start(Type.CAMERA, context);
+              FlutterScanPlugin.start(Type.CAMERA, context).then((value) => {
+                print(value),
+              });
             }, child: Text("Camera")),
             ElevatedButton(onPressed: () {
               FlutterScanPlugin.start(Type.GALLERY, context);

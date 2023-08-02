@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:path/path.dart' as p;
 
 import 'flutter_scan_plugin_platform_interface.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -111,11 +112,20 @@ class FlutterScanPlugin {
             delay: Duration(seconds: 1));
     List<String>? _path = await _screenToPdf(capturedImage);
     if(path.isNotEmpty){
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Save to download folder success'),
-        ),
-      );
+      if(Platform.isAndroid) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Save to download folder success'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Save to document your app success'),
+          ),
+        );
+      }
+
     }
     return _path;
   }
