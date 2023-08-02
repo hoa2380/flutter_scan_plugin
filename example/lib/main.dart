@@ -66,23 +66,19 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
+            ElevatedButton(onPressed: () {
+              FlutterScanPlugin.start(Type.CAMERA, context);
+            }, child: Text("Camera")),
+            ElevatedButton(onPressed: () {
+              FlutterScanPlugin.start(Type.GALLERY, context);
+            }, child: Text("Gallery"))
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          FlutterScanPlugin.start(Type.CAMERA, context);
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

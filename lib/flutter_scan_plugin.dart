@@ -24,7 +24,7 @@ const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 class FlutterScanPlugin {
   static final _textRecognizer = TextRecognizer();
 
-  static ScreenshotController screenshotController = ScreenshotController();
+  static final ScreenshotController screenshotController = ScreenshotController();
 
   static Random _rnd = Random();
 
