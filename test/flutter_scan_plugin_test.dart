@@ -23,7 +23,5 @@ void main() {
     FlutterScanPlugin flutterScanPlugin = FlutterScanPlugin();
     MockFlutterScanPluginPlatform fakePlatform = MockFlutterScanPluginPlatform();
     FlutterScanPluginPlatform.instance = fakePlatform;
-
-    expect(await flutterScanPlugin.getPlatformVersion(), '42');
   });
 }

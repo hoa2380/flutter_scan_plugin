@@ -31,9 +31,6 @@ class FlutterScanPlugin {
 
   static String _getRandomString(int length) => String.fromCharCodes(Iterable.generate(
       length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-  Future<String?> getPlatformVersion() {
-    return FlutterScanPluginPlatform.instance.getPlatformVersion();
-  }
 
   static Future<List<String>?> start(Type type, BuildContext context) async {
     if (type == Type.CAMERA) {
@@ -61,8 +58,7 @@ class FlutterScanPlugin {
     File file = await File('${tempDir.path}/image.png').create();
     file.writeAsBytesSync(_byte!);
     List<String>?  _path = [];
-    _path.add(file.path);
-    _showResult(context, file.path, false);
+    _path = await _showResult(context, file.path, false);
     return _path;
   }
 
@@ -85,86 +81,53 @@ class FlutterScanPlugin {
     File file = await File('${tempDir.path}/image.png').create();
     file.writeAsBytesSync(_byte!);
     List<String>?  _path = [];
-    _path.add(file.path);
-    _showResult(context, file.path, true);
+    _path = await _showResult(context, file.path, true);
     return _path;
   }
 
-  static Future<void> _showResult(BuildContext context, String path, bool isGallery) async {
-    await showGeneralDialog(
-      context: context,
-      barrierColor: Colors.black12.withOpacity(0.6), // Background color
-      barrierDismissible: false,
-      barrierLabel: 'Dialog',
-      transitionDuration: Duration(milliseconds: 400),
-      pageBuilder: (_, __, ___) {
-        return Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: Image.file(File(path)),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final inputImage = InputImage.fromFile(File(path));
-                      var decodedImage = await decodeImageFromList(File(path).readAsBytesSync());
-                      final recognizedText = await _textRecognizer.processImage(inputImage);
-                      final file2 = File(inputImage.filePath!);
-                      var decodedImage2 = await decodeImageFromList(file2.readAsBytesSync());
-                      var widgetScreen = Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: CustomPaint(
-                            painter: TextRecognizerPainter(
-                              imageSize: isGallery
-                                  ? Size(decodedImage.width.toDouble(), decodedImage.height.toDouble())
-                                  : Size(decodedImage2.width.toDouble(), decodedImage2.height.toDouble()),
-                              recognizedText: recognizedText,
-                              cameraLensDirection: CameraLensDirection.back,
-                              rotation: InputImageRotation.rotation0deg,
-                            ),
-                            child: Container(
-                              height: MediaQuery.of(context).size.height,
-                              width: MediaQuery.of(context).size.width,
-                            )),
-                      );
-                      screenshotController
-                          .captureFromWidget(InheritedTheme.captureAll(context, Material(child: widgetScreen)),
-                          delay: Duration(seconds: 1))
-                          .then((capturedImage) {
-                        _screenToPdf(capturedImage);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Save to download folder success'),
-                          ),
-                        );
-                        Navigator.of(context).pop();
-                      });
-                    },
-                    child: const Text('Ocr text & save pdf'),
-                  ),
-                ],
-              ),
-            ],
+  static Future<List<String>?> _showResult(BuildContext context, String path, bool isGallery) async {
+    final inputImage = InputImage.fromFile(File(path));
+    var decodedImage = await decodeImageFromList(File(path).readAsBytesSync());
+    final recognizedText = await _textRecognizer.processImage(inputImage);
+    final file2 = File(inputImage.filePath!);
+    var decodedImage2 = await decodeImageFromList(file2.readAsBytesSync());
+    List<String>?  _pathPdf = [];
+    var widgetScreen = Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: CustomPaint(
+          painter: TextRecognizerPainter(
+            imageSize: isGallery
+                ? Size(decodedImage.width.toDouble(), decodedImage.height.toDouble())
+                : Size(decodedImage2.width.toDouble(), decodedImage2.height.toDouble()),
+            recognizedText: recognizedText,
+            cameraLensDirection: CameraLensDirection.back,
+            rotation: InputImageRotation.rotation0deg,
+          ),
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+          )),
+    );
+    screenshotController
+        .captureFromWidget(InheritedTheme.captureAll(context, Material(child: widgetScreen)),
+        delay: Duration(seconds: 1))
+        .then((capturedImage) async {
+          _pathPdf = await _screenToPdf(capturedImage);
+      if(_pathPdf != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Save to download folder success'),
           ),
         );
-      },
-    );
+      }
+    });
+    return _pathPdf;
   }
 
-  static Future<void> _screenToPdf(Uint8List screenShot) async {
+  static Future<List<String>?> _screenToPdf(Uint8List screenShot) async {
     await Permission.storage.request();
-    if(await Permission.storage.isDenied) return;
+    List<String>?  _path = [];
+    if(await Permission.storage.isDenied) return null;
     try {
       Directory? directory;
       pw.Document pdf = pw.Document();
@@ -186,6 +149,7 @@ class FlutterScanPlugin {
       }
       File pdfFile = await File('${directory?.path}/${'file${_getRandomString(5)}'}.pdf').create();
       pdfFile.writeAsBytesSync(await pdf.save());
+      _path.add(pdfFile.path);
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(
       //     content: Text('Save to download folder success'),
@@ -199,6 +163,7 @@ class FlutterScanPlugin {
       //   ),
       // );
     }
+    return _path;
   }
 }
 
