@@ -23,6 +23,13 @@ android {
 ```podfile
  platform :ios, '13.0'
 ```
+Add info.plist
+```
+<key>NSCameraUsageDescription</key>
+<string>Camera Permission Description</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Gallery Permission Description</string>
+```
 
 #### Installing
 
